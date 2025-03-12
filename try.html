@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Points Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Body styling with dark blue background */
+        body {
+            background-color: #0d1b2a; /* Dark blue */
+            color: #ffffff; /* White text for readability */
+            font-family: Arial, sans-serif;
+        }
+
+        /* Container with gradient and shadow */
+        .container {
+            background: linear-gradient(135deg, #6a0572, #bf1363, #0d1b2a);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0px 0px 15px rgba(255, 20, 147, 0.5); /* Soft pink shadow */
+            margin-top: 20px;
+        }
+
+        /* Table styling */
+        .table {
+            background-color: #ffffff; /* White table background */
+            color: #000000; /* Black text for contrast */
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table thead {
+            background: #6a0572; /* Purple header */
+            color: white;
+        }
+
+        .table th, .table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: #00509d;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #003f7f;
+        }
+
+        .btn-success {
+            background: #1db954;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .btn-success:hover {
+            background: #189b44;
+        }
+
+        /* Custom styling for headings */
+        h2, h3 {
+            text-align: center;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 2px 2px 8px rgba(255, 20, 147, 0.5);
+        }
+
+        /* Input fields */
+        .form-control {
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        /* File upload input */
+        input[type="file"] {
+            background: #f4f4f4;
+            border-radius: 8px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="text-center">
+            <img src="cbit logo - Copy.jpg" alt="CBIT Logo" class="mb-3" style="width: 300px;">
+        </div>
+        <h2>Activity Points Tracker</h2>
+
+        <!-- Semester Selection -->
+        <div class="mb-3">
+            <label for="semester" class="form-label">Select Semester:</label>
+            <select id="semester" class="form-select">
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3">Semester 3</option>
+                <option value="4">Semester 4</option>
+                <option value="5">Semester 5</option>
+                <option value="6">Semester 6</option>
+                <option value="7">Semester 7</option>
+                <option value="8">Semester 8</option>
+            </select>
+        </div>
+
+        <!-- Activities Table -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>S. No</th>
+                    <th>Activity</th>
+                    <th>Allotted Points</th>
+                    <th>Earned Points</th>
+                    <th>Proof</th>
+                    <th>Points Obtained</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="activityTable">
+                <!-- Dynamic rows will be populated here -->
+            </tbody>
+        </table>
+
+        <!-- Calculate Points Button -->
+        <button class="btn btn-primary w-100" id="calculatePoints">Calculate Points</button>
+
+        <!-- Total Points Display -->
+        <h3 class="mt-4">Total Earned Points: <span id="totalPoints">0</span></h3>
+        <button class="btn btn-success w-100 mt-3" id="submitPoints">Submit</button>
+    </div>
+
+    <script>
+        const activities = [
+            { name: "MOOCs (SWAYAM/NPTEL/COURSERA) - 12 weeks", allotted: 20 },
+            { name: "MOOCs (SWAYAM/NPTEL/COURSERA) - 8 weeks", allotted: 16 },
+            { name: "Tech Fest - Organiser", allotted: 5 },
+            { name: "Tech Fest - Participant", allotted: 3 },
+            { name: "Rural Reporting", allotted: 5 },
+            { name: "Harithahaaram/Plantation", allotted: 1 },
+            { name: "Participation in relief camps", allotted: 20 },
+            { name: "Debate/Group Discussion/Quiz", allotted: 10 },
+            { name: "Publication - Editor", allotted: 10 },
+            { name: "Publication - Writer", allotted: 5 },
+            { name: "Research Publication", allotted: 10 },
+            { name: "Innovation Projects", allotted: 20 },
+            { name: "Blood donation/NSS Participation", allotted: 5 },
+            { name: "Blood donation/NSS Camp", allotted: 10 },
+            { name: "Sports (College Level)", allotted: 5 },
+            { name: "Sports (University Level)", allotted: 10 },
+            { name: "Sports (State Level)", allotted: 15 },
+            { name: "Cultural Programmes", allotted: 5 },
+            { name: "Professional Society Membership", allotted: 5 },
+            { name: "Student Chapter/Clubs", allotted: 5 },
+            { name: "Industry Visit & Report", allotted: 10 },
+            { name: "Photography Club Activities", allotted: 5 },
+            { name: "Participation in YOGA camp", allotted: 5 },
+            { name: "Self-Entrepreneurship program", allotted: 20 },
+            { name: "Adventure Sports with Certification", allotted: 20 },
+            { name: "Training to Underprivileged", allotted: 10 },
+            { name: "Community Service", allotted: 10 },
+            { name: "Class Representative", allotted: 5 }
+        ];
+
+        function populateTable() {
+            const tableBody = document.getElementById("activityTable");
+            tableBody.innerHTML = ""; 
+
+            activities.forEach((activity, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${activity.name}</td>
+                    <td>${activity.allotted}</td>
+                    <td><input type="number" class="form-control earned-points" min="0" max="${activity.allotted}" placeholder="Enter Earned"></td>
+                    <td><input type="file" class="form-control proof-upload"></td>
+                    <td class="points-obtained">0</td>
+                    <td class="status">Pending</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        document.getElementById("calculatePoints").addEventListener("click", function() {
+            let totalPoints = 0;
+            document.querySelectorAll(".earned-points").forEach((input, index) => {
+                let earnedPoints = parseInt(input.value) || 0;
+                totalPoints += earnedPoints;
+                document.querySelectorAll(".points-obtained")[index].innerText = earnedPoints;
+                document.querySelectorAll(".status")[index].innerText = earnedPoints > 0 ? "Completed" : "Pending";
+            });
+            document.getElementById("totalPoints").innerText = totalPoints;
+        });
+
+        window.onload = populateTable;
+    </script>
+    <footer>
+        <a href="https://www.example.com" target="_blank" style="color:white;">Visit Our Official Website</a>
+    </footer>
+    
+</body>
+</html>
